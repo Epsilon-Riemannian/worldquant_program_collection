@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Program",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",  // 当前工作区根目录
+            "console": "integratedTerminal",   
+            "internalConsoleOptions": "neverOpen", 
+            "env": {},
+            "showLog": true
+        }
+    ]
+}

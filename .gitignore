@@ -1,0 +1,23 @@
+# 忽略包含敏感信息的真实配置文件
+configs/config.yaml  
+
+# 忽略其他可能的配置文件和环境变量
+.env
+.env.local
+*.secret.yaml
+
+# Go语言相关编译文件和依赖
+bin/
+dist/
+vendor/
+*.exe
+*.so
+*.test
+*.out
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略数据库相关文件
+my.sql
