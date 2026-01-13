@@ -223,8 +223,8 @@ func SaveWeightValueFactor(config models.Config, token string) error {
 		ValueFactorChangeRate:  valueFactorChangeRate,
 
 		DataFieldsUsed:                resp.Leaderboard.DataFieldsUsed,
-		SubmissionsCount:              resp.Leaderboard.SubmissionsCount,
-		SuperAlphaSubmissionsCount:    resp.Leaderboard.SuperAlphaSubmissionsCount,
+		SubmissionsCount:              result.TotalCount,
+		SuperAlphaSubmissionsCount:    result.IsToday,
 		MeanProdCorrelation:           resp.Leaderboard.MeanProdCorrelation,
 		MeanSelfCorrelation:           resp.Leaderboard.MeanSelfCorrelation,
 		SuperAlphaMeanProdCorrelation: resp.Leaderboard.SuperAlphaMeanProdCorrelation,
