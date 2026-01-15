@@ -6138,7 +6138,8 @@
             "lineStyle": {
               "dash": [
                 0,
-                10
+                3,
+                3
               ],
               "fill": "dot"
             },
@@ -6178,33 +6179,11 @@
             "properties": [
               {
                 "id": "custom.axisPlacement",
-                "value": "hidden"
-              },
-              {
-                "id": "custom.thresholdsStyle",
-                "value": {
-                  "mode": "dashed"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "percentage",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": 0
-                    },
-                    {
-                      "color": "red",
-                      "value": 100
-                    }
-                  ]
-                }
+                "value": "right"
               },
               {
                 "id": "custom.lineWidth",
-                "value": 2
+                "value": 1
               },
               {
                 "id": "custom.showValues",
@@ -6213,6 +6192,10 @@
               {
                 "id": "custom.transform",
                 "value": "negative-Y"
+              },
+              {
+                "id": "decimals",
+                "value": 2
               }
             ]
           },
@@ -6225,6 +6208,46 @@
               {
                 "id": "unit",
                 "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.showValues",
+                "value": true
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weight_factor"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "light-red",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 2
               }
             ]
           }
@@ -6302,7 +6325,7 @@
   "timezone": "browser",
   "title": "Weight_factor",
   "uid": "add98rb",
-  "version": 13
+  "version": 16
 }
 
 

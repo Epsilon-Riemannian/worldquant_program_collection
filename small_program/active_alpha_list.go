@@ -12,6 +12,7 @@ import (
 	"program-collection/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -275,7 +276,7 @@ func updateBatchAlphas(config models.Config, token string, db *gorm.DB, alphaIDs
 
 		if result.RowsAffected > 0 {
 			updatedCount++
-			log.Printf("已更新Alpha: %s", alphaID)
+			// log.Printf("已更新Alpha: %s", alphaID)
 		}
 	}
 
@@ -334,7 +335,7 @@ func FetchNewAlphas(config models.Config, token string, db *gorm.DB) error {
 
 	// 只尝试一次，使用正确的格式
 	for {
-		log.Printf("获取数据: %s 到 %s, 偏移量: %d", dateFrom.Format("2006-01-02 15:04:05"), endDate.Format("2006-01-02 15:04:05"), offset)
+		// log.Printf("获取数据: %s 到 %s, 偏移量: %d", dateFrom.Format("2006-01-02 15:04:05"), endDate.Format("2006-01-02 15:04:05"), offset)
 
 		beginISO, _ := ConvertToUTCPlus5(dateFrom.Format("2006-01-02 15:04:05"))
 		endISO, _ := ConvertToUTCPlus5(endDate.Format("2006-01-02 15:04:05"))
@@ -415,62 +416,11 @@ func batchInsertOrIgnore(db *gorm.DB, alphas []ActiveAlphaList) (int, error) {
 		return 0, nil
 	}
 
-	// 使用原生SQL进行批量INSERT IGNORE
-	// 注意：这里假设你使用MySQL
-	sql := `INSERT IGNORE INTO active_alpha_list 
-		(id, type, author, instrument_type, region, universe, delay, decay, 
-		neutralization, truncation, pasteurization, unit_handling, max_trade, 
-		language, start_date, end_date, visualization, date_created, date_submitted, 
-		date_modified, name, favorite, hidden, color, category, grade, stage, status,
-		tags, classifications, is_pnl, is_book_size, is_long_count, is_short_count,
-		is_turnover, is_returns, is_drawdown, is_margin, is_sharpe, is_fitness,
-		is_start_date, is_self_correlation, is_prod_correlation, is_checks,
-		os_start_date, os_is_sharpe_ratio, os_pre_close_sharpe_ratio, os_checks,
-		train_pnl, train_book_size, train_long_count, train_short_count, train_turnover,
-		train_returns, train_drawdown, train_margin, train_sharpe, train_fitness,
-		train_start_date, test_pnl, test_book_size, test_long_count, test_short_count,
-		test_turnover, test_returns, test_drawdown, test_margin, test_sharpe,
-		test_fitness, test_start_date, prod, competitions, themes, pyramids,
-		pyramid_themes, team, osmosis_points, create_time, create_date, create_month)
-		VALUES `
+	// 方法3A: 使用CreateInBatches
+	result := db.Clauses(clause.OnConflict{
+		DoNothing: true, // MySQL中相当于INSERT IGNORE
+	}).CreateInBatches(alphas, 100)
 
-	var valueStrings []string
-	var valueArgs []interface{}
-
-	for _, alpha := range alphas {
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-
-		valueArgs = append(valueArgs,
-			alpha.ID, alpha.Type, alpha.Author,
-			alpha.InstrumentType, alpha.Region, alpha.Universe,
-			alpha.Delay, alpha.Decay, alpha.Neutralization,
-			alpha.Truncation, alpha.Pasteurization, alpha.UnitHandling,
-			alpha.MaxTrade, alpha.Language, alpha.StartDate, alpha.EndDate,
-			alpha.Visualization, alpha.DateCreated, alpha.DateSubmitted,
-			alpha.DateModified, alpha.Name, alpha.Favorite, alpha.Hidden,
-			alpha.Color, alpha.Category, alpha.Grade, alpha.Stage, alpha.Status,
-			alpha.Tags, alpha.Classifications, alpha.IsPnl, alpha.IsBookSize,
-			alpha.IsLongCount, alpha.IsShortCount, alpha.IsTurnover,
-			alpha.IsReturns, alpha.IsDrawdown, alpha.IsMargin, alpha.IsSharpe,
-			alpha.IsFitness, alpha.IsStartDate, alpha.IsSelfCorrelation,
-			alpha.IsProdCorrelation, alpha.IsChecks, alpha.OsStartDate,
-			alpha.OsIsSharpeRatio, alpha.OsPreCloseSharpeRatio, alpha.OsChecks,
-			alpha.TrainPnl, alpha.TrainBookSize, alpha.TrainLongCount,
-			alpha.TrainShortCount, alpha.TrainTurnover, alpha.TrainReturns,
-			alpha.TrainDrawdown, alpha.TrainMargin, alpha.TrainSharpe,
-			alpha.TrainFitness, alpha.TrainStartDate, alpha.TestPnl,
-			alpha.TestBookSize, alpha.TestLongCount, alpha.TestShortCount,
-			alpha.TestTurnover, alpha.TestReturns, alpha.TestDrawdown,
-			alpha.TestMargin, alpha.TestSharpe, alpha.TestFitness,
-			alpha.TestStartDate, alpha.Prod, alpha.Competitions, alpha.Themes,
-			alpha.Pyramids, alpha.PyramidThemes, alpha.Team, alpha.OsmosisPoints,
-			alpha.CreateTime, alpha.CreateDate, alpha.CreateMonth,
-		)
-	}
-
-	sql += join(valueStrings, ",")
-
-	result := db.Exec(sql, valueArgs...)
 	if result.Error != nil {
 		return 0, result.Error
 	}
